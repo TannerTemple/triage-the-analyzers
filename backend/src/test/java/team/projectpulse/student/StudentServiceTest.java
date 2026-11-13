@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -175,6 +176,25 @@ class StudentServiceTest {
         assertThat(result.getEmail()).isEqualTo(update.getEmail());
 //        assertThat(result.getRoles()).isEqualTo(update.getRoles());
         assertThat(result.isEnabled()).isEqualTo(update.isEnabled());
+    }
+
+    @Test
+    void testUpdateStudentHandlesNullAuthorityName() {
+        // Given — a GrantedAuthority whose getAuthority() returns null (misconfigured / anonymous authority)
+        Student update = new Student("john", "John (updated)", "Smith (updated)", "j.smith@abc.edu (updated)", "", false, "admin student");
+        given(this.studentRepository.findById(1)).willReturn(Optional.of(this.students.get(0)));
+        given(this.studentRepository.save(any(Student.class))).willReturn(this.students.get(0));
+
+        GrantedAuthority nullAuthority = () -> null;
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(
+                "anonymous", null, List.of(nullAuthority)));
+        SecurityContextHolder.setContext(securityContext);
+
+        // When / Then — must not throw NullPointerException
+        // Before fix: grantedAuthority.getAuthority().equals("ROLE_instructor") NPEs when getAuthority() is null
+        Student result = this.studentService.updateStudent(1, update);
+        assertThat(result).isNotNull();
     }
 
     @Test
