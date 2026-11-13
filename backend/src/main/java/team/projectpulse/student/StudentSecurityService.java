@@ -37,6 +37,8 @@ public class StudentSecurityService {
      * @param studentId the id of the student we need to access, this is NOT the current user's Id
      * @return
      */
+    // Explicit null-guard kept separate from stream chain to make fail-closed authorization check clear
+    @SuppressWarnings("PMD.SimplifyBooleanReturns")
     public boolean isCurrentUserInstructorOfStudentSection(Integer studentId) {
         Integer instructorIdFromJwt = this.userUtils.getUserId();
         Student student = this.studentRepository.findById(studentId).orElse(null);

@@ -7,4 +7,12 @@
 
      Unlike the baseline, this file may grow, but every entry is a reviewed decision. -->
 <FindBugsFilter>
+  <!-- D1: EI_EXPOSE_REP / EI_EXPOSE_REP2 suppressed project-wide.
+       Spring services and controllers are singletons shared by constructor injection — the injected
+       collaborator references are intentionally shared, not defensively copied.
+       JPA entities rely on mutable association references and Hibernate collection proxies for
+       dirty checking and lazy loading; wrapping every getter/setter in a defensive copy would break
+       proxy-based change detection and eager/lazy fetch semantics. -->
+  <Match><Package name="~team\.projectpulse\..*"/><Bug pattern="EI_EXPOSE_REP"/></Match>
+  <Match><Package name="~team\.projectpulse\..*"/><Bug pattern="EI_EXPOSE_REP2"/></Match>
 </FindBugsFilter>

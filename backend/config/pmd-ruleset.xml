@@ -13,5 +13,18 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
     <description>PMD quickstart, with Project Pulse's decisions.</description>
     <rule ref="rulesets/java/quickstart.xml">
+        <!-- D2: JPA entities and Jackson DTOs require a reflective no-arg constructor that the framework
+             calls directly; it cannot be removed. Documenting an empty body adds noise without value. -->
+        <exclude name="UncommentedEmptyConstructor"/>
+        <exclude name="UnnecessaryConstructor"/>
+        <!-- D3: Every flagged statement in Project Pulse is a single-line guard clause
+             (if (...) return; / if (...) continue;) written on one line. Adding braces would
+             expand ~25 one-liners to three-line blocks with no safety gain. -->
+        <exclude name="ControlStatementBraces"/>
+        <!-- D4: Project Pulse uses SLF4J parameterized {} placeholders and passes only O(1)
+             in-memory accessors (getEmail(), getName(), size()). The logger itself decides whether
+             to format the string; isDebugEnabled() / isErrorEnabled() guards add clutter without
+             saving any real work. -->
+        <exclude name="GuardLogStatement"/>
     </rule>
 </ruleset>
